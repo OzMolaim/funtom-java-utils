@@ -23,12 +23,7 @@ public class SynchronizedPerKeyExecutorTest {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
 
 		final AtomicBoolean bool = new AtomicBoolean(false);
-		underTest.execute(1, new Runnable() {
-			@Override
-			public void run() {
-				bool.set(true);
-			}
-		});
+		underTest.execute(1, () -> bool.set(true));
 
 		assertTrue(bool.get());
 	}
@@ -37,12 +32,7 @@ public class SynchronizedPerKeyExecutorTest {
 	public void submitSimpleTask() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
 
-		boolean result = underTest.submit(1, new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				return true;
-			}
-		});
+		boolean result = underTest.submit(1, () -> true);
 		
 		assertTrue(result);
 	}
@@ -51,12 +41,7 @@ public class SynchronizedPerKeyExecutorTest {
 	public void submitUncheckedSimpleTask() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
 
-		boolean result = underTest.submitUnchecked(1, new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				return true;
-			}
-		});
+		boolean result = underTest.submitUnchecked(1, () -> true);
 		
 		assertTrue(result);
 	}
@@ -65,12 +50,7 @@ public class SynchronizedPerKeyExecutorTest {
 	public void submitUncheckedThrowsOnException() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
 
-		boolean result = underTest.submitUnchecked(1, new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				throw new Exception();
-			}
-		});
+		boolean result = underTest.submitUnchecked(1, () -> {throw new Exception();});
 		
 		assertTrue(result);
 	}
@@ -84,46 +64,25 @@ public class SynchronizedPerKeyExecutorTest {
 		final List<Integer> actual = new ArrayList<>();
 		final AtomicInteger seq = new AtomicInteger();
 
-		final Runnable unsafeTask = new Runnable() {
-			@Override
-			public void run() {
-				actual.add(seq.incrementAndGet());
-				signal.countDown();
-			}
+		final Runnable unsafeTask = () -> {
+			actual.add(seq.incrementAndGet());
+			signal.countDown();
 		};
 		
-		final Callable<Integer> unsafeTaskCallable = new Callable<Integer>() {
-			@Override
-			public Integer call() {
-				actual.add(seq.incrementAndGet());
-				signal.countDown();
-				return 1;
-			}
+		final Callable<Integer> unsafeTaskCallable = () -> {
+			actual.add(seq.incrementAndGet());
+			signal.countDown();
+			return 1;
 		};
 
 		ExecutorService pool = Executors.newFixedThreadPool(50);
 		for (int i = 0; i < N; i++) {
 			if (i % 3 == 0) {
-				pool.execute(new Runnable() {
-					@Override
-					public void run() {
-						underTest.execute(new String("KEY"), unsafeTask);
-					}
-				});
+				pool.execute(() -> underTest.execute(new String("KEY"), unsafeTask));
 			} else if (i % 3 == 1){
-				pool.submit((new Callable<Integer>() {
-					@Override
-					public Integer call() throws Exception {
-						return underTest.submit(new String("KEY"), unsafeTaskCallable);
-					}
-				}));
+				pool.submit((() -> underTest.submit(new String("KEY"), unsafeTaskCallable)));
 			}  else {
-				pool.submit((new Callable<Integer>() {
-					@Override
-					public Integer call() throws Exception {
-						return underTest.submitUnchecked(new String("KEY"), unsafeTaskCallable);
-					}
-				}));
+				pool.submit((() -> underTest.submitUnchecked(new String("KEY"), unsafeTaskCallable)));
 			}
 		}
 
@@ -156,34 +115,20 @@ public class SynchronizedPerKeyExecutorTest {
 			}
 		};
 		
-		final Callable<Long> unsafeTask2 = new Callable<Long>() {
-
-			@Override
-			public Long call() throws Exception {
-				try {
-					long res = System.currentTimeMillis();
-					actual2.add(res);
-					return res;
-				} finally {
-					signal.countDown();
-				}
+		final Callable<Long> unsafeTask2 = () -> {
+			try {
+				long res = System.currentTimeMillis();
+				actual2.add(res);
+				return res;
+			} finally {
+				signal.countDown();
 			}
 		};
 
 		ExecutorService pool = Executors.newFixedThreadPool(50);
 		for (int i = 0; i < N; i++) {
-			pool.execute(new Runnable() {
-				@Override
-				public void run() {
-					underTest.execute(new String("KEY1"), unsafeTask1);
-				}
-			});
-			pool.submit(new Callable<Long>() {
-				@Override
-				public Long call() throws Exception {
-					return underTest.submit(new String("KEY2"), unsafeTask2);
-				}
-			});
+			pool.execute(() -> underTest.execute(new String("KEY1"), unsafeTask1));
+			pool.submit(() -> underTest.submit(new String("KEY2"), unsafeTask2));
 		}
 
 		signal.await(30, TimeUnit.SECONDS);
