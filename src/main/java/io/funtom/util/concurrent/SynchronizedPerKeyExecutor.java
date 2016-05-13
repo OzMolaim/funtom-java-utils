@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
+public final class SynchronizedPerKeyExecutor<K> {
 
-	private final Map<KEY_TYPE, Lock> locks = new HashMap<>();
-	private final Map<KEY_TYPE, Integer> keyUsersCount = new HashMap<>();
+	private final Map<K, Lock> locks = new HashMap<>();
+	private final Map<K, Integer> keyUsersCount = new HashMap<>();
 
-	public void execute(KEY_TYPE key, Runnable task) {
+	public void execute(K key, Runnable task) {
 		Lock lock = getLockForKey(key);
 		lock.lock();
 		try {
@@ -22,7 +22,7 @@ public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
 		}
 	}
 
-	public <R> R submit(KEY_TYPE key, Callable<R> task) throws Exception {
+	public <R> R submit(K key, Callable<R> task) throws Exception {
 		Lock lock = getLockForKey(key);
 		lock.lock();
 		try {
@@ -33,7 +33,7 @@ public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
 		}
 	}
 
-	public <R> R submitUnchecked(KEY_TYPE key, Callable<R> task) {
+	public <R> R submitUnchecked(K key, Callable<R> task) {
 		try {
 			return submit(key, task);
 		} catch (Exception e) {
@@ -41,7 +41,7 @@ public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
 		}
 	}
 
-	private synchronized Lock getLockForKey(KEY_TYPE key) {
+	private synchronized Lock getLockForKey(K key) {
 		Lock result;
 		Integer currentUsers = keyUsersCount.get(key);
 		if (currentUsers == null) {
@@ -55,7 +55,7 @@ public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
 		return result;
 	}
 
-	private synchronized void freeLockForKey(KEY_TYPE key) {
+	private synchronized void freeLockForKey(K key) {
 		int currentUsers = keyUsersCount.get(key);
 		if (currentUsers == 1) {
 			keyUsersCount.remove(key);
@@ -69,7 +69,7 @@ public final class SynchronizedPerKeyExecutor<KEY_TYPE> {
 
 		private static final long serialVersionUID = -9113509948641626834L;
 
-		public UncheckedExecutionException(Throwable cause) {
+		UncheckedExecutionException(Throwable cause) {
 			super("Exception during task execution", cause);
 		}
 	}

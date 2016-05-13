@@ -21,44 +21,35 @@ public class SynchronizedPerKeyExecutorTest {
 	@Test
 	public void executeSimpleTask() {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
-
 		final AtomicBoolean bool = new AtomicBoolean(false);
 		underTest.execute(1, () -> bool.set(true));
-
 		assertTrue(bool.get());
 	}
 	
 	@Test
 	public void submitSimpleTask() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
-
 		boolean result = underTest.submit(1, () -> true);
-		
 		assertTrue(result);
 	}
 	
 	@Test
 	public void submitUncheckedSimpleTask() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
-
 		boolean result = underTest.submitUnchecked(1, () -> true);
-		
 		assertTrue(result);
 	}
 
 	@Test(expected = SynchronizedPerKeyExecutor.UncheckedExecutionException.class)
 	public void submitUncheckedThrowsOnException() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
-
 		boolean result = underTest.submitUnchecked(1, () -> {throw new Exception();});
-		
 		assertTrue(result);
 	}
 	
 	@Test
 	public void executeManyTasksForSameKey() throws InterruptedException {
 		final SynchronizedPerKeyExecutor<String> underTest = new SynchronizedPerKeyExecutor<>();
-
 		final int N = 10000;
 		final CountDownLatch signal = new CountDownLatch(N);
 		final List<Integer> actual = new ArrayList<>();
@@ -78,17 +69,15 @@ public class SynchronizedPerKeyExecutorTest {
 		ExecutorService pool = Executors.newFixedThreadPool(50);
 		for (int i = 0; i < N; i++) {
 			if (i % 3 == 0) {
-				pool.execute(() -> underTest.execute(new String("KEY"), unsafeTask));
+				pool.execute(() -> underTest.execute("KEY", unsafeTask));
 			} else if (i % 3 == 1){
-				pool.submit((() -> underTest.submit(new String("KEY"), unsafeTaskCallable)));
+				pool.submit((() -> underTest.submit("KEY", unsafeTaskCallable)));
 			}  else {
-				pool.submit((() -> underTest.submitUnchecked(new String("KEY"), unsafeTaskCallable)));
+				pool.submit((() -> underTest.submitUnchecked("KEY", unsafeTaskCallable)));
 			}
 		}
 
-		signal.await(30, TimeUnit.SECONDS);
-		pool.shutdownNow();
-		pool.awaitTermination(30, TimeUnit.SECONDS);
+		shutdownAndWait(signal, pool);
 		
 		List<Integer> expected = new ArrayList<>();
 		for (int i = 1; i <= N; i++) {
@@ -127,13 +116,11 @@ public class SynchronizedPerKeyExecutorTest {
 
 		ExecutorService pool = Executors.newFixedThreadPool(50);
 		for (int i = 0; i < N; i++) {
-			pool.execute(() -> underTest.execute(new String("KEY1"), unsafeTask1));
-			pool.submit(() -> underTest.submit(new String("KEY2"), unsafeTask2));
+			pool.execute(() -> underTest.execute("KEY1", unsafeTask1));
+			pool.submit(() -> underTest.submit("KEY2", unsafeTask2));
 		}
 
-		signal.await(30, TimeUnit.SECONDS);
-		pool.shutdownNow();
-		pool.awaitTermination(30, TimeUnit.SECONDS);
+		shutdownAndWait(signal, pool);
 		
 		Assert.assertEquals(N, actual1.size());
 		Assert.assertEquals(N, actual2.size());
@@ -152,6 +139,12 @@ public class SynchronizedPerKeyExecutorTest {
 			String msg = "Element: " + i;
 			assertTrue(msg, actual1.get(i-1) <= actual1.get(i));
 		}
+	}
+
+	private void shutdownAndWait(CountDownLatch signal, ExecutorService pool) throws InterruptedException {
+		signal.await(30, TimeUnit.SECONDS);
+		pool.shutdownNow();
+		pool.awaitTermination(30, TimeUnit.SECONDS);
 	}
 }
 
