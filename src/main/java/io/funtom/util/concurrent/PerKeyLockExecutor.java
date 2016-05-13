@@ -5,12 +5,12 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantLock;
 
-public final class SynchronizedPerKeyExecutor<K> {
+public final class PerKeyLockExecutor<KEY_TYPE> {
 
-	private final Map<K, LockExecutor> executors = new HashMap<>();
-	private final Map<K, Integer> keyUsersCount = new HashMap<>();
+	private final Map<KEY_TYPE, LockExecutor> executors = new HashMap<>();
+	private final Map<KEY_TYPE, Integer> keyUsersCount = new HashMap<>();
 
-	public void execute(K key, Runnable task) {
+	public void execute(KEY_TYPE key, Runnable task) {
 		LockExecutor executor = getExecutorForKey(key);
 		try {
 			executor.execute(task);
@@ -19,7 +19,7 @@ public final class SynchronizedPerKeyExecutor<K> {
 		}
 	}
 
-	public <R> R submit(K key, Callable<R> task) throws Exception {
+	public <R> R submit(KEY_TYPE key, Callable<R> task) throws Exception {
 		LockExecutor executor = getExecutorForKey(key);
 		try {
 			return executor.submit(task);
@@ -28,7 +28,7 @@ public final class SynchronizedPerKeyExecutor<K> {
 		}
 	}
 
-	public <R> R submitUnchecked(K key, Callable<R> task) {
+	public <R> R submitUnchecked(KEY_TYPE key, Callable<R> task) {
 		LockExecutor executor = getExecutorForKey(key);
 		try {
 			return executor.submitUnchecked(task);
@@ -37,7 +37,7 @@ public final class SynchronizedPerKeyExecutor<K> {
 		}
 	}
 
-	private synchronized LockExecutor getExecutorForKey(K key) {
+	private synchronized LockExecutor getExecutorForKey(KEY_TYPE key) {
 		LockExecutor result;
 		Integer currentUsers = keyUsersCount.get(key);
 		if (currentUsers == null) {
@@ -51,7 +51,7 @@ public final class SynchronizedPerKeyExecutor<K> {
 		return result;
 	}
 
-	private synchronized void freeExecutorForKey(K key) {
+	private synchronized void freeExecutorForKey(KEY_TYPE key) {
 		int currentUsers = keyUsersCount.get(key);
 		if (currentUsers == 1) {
 			keyUsersCount.remove(key);

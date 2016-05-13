@@ -12,11 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertTrue;
 
-public class SynchronizedPerKeyExecutorTest {
+public class PerKeyLockExecutorTest {
 
 	@Test
 	public void executeSimpleTask() {
-		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
+		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
 		final AtomicBoolean bool = new AtomicBoolean(false);
 		underTest.execute(1, () -> bool.set(true));
 		assertTrue(bool.get());
@@ -24,28 +24,28 @@ public class SynchronizedPerKeyExecutorTest {
 	
 	@Test
 	public void submitSimpleTask() throws Exception {
-		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
+		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
 		boolean result = underTest.submit(1, () -> true);
 		assertTrue(result);
 	}
 	
 	@Test
 	public void submitUncheckedSimpleTask() throws Exception {
-		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
+		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
 		boolean result = underTest.submitUnchecked(1, () -> true);
 		assertTrue(result);
 	}
 
 	@Test(expected = UncheckedExecutionException.class)
 	public void submitUncheckedThrowsOnException() throws Exception {
-		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
+		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
 		boolean result = underTest.submitUnchecked(1, () -> {throw new Exception();});
 		assertTrue(result);
 	}
 	
 	@Test
 	public void executeManyTasksForSameKey() throws InterruptedException {
-		final SynchronizedPerKeyExecutor<String> underTest = new SynchronizedPerKeyExecutor<>();
+		final PerKeyLockExecutor<String> underTest = new PerKeyLockExecutor<>();
 		final int N = 10000;
 		final CountDownLatch signal = new CountDownLatch(N);
 		final List<Integer> actual = new ArrayList<>();
@@ -85,7 +85,7 @@ public class SynchronizedPerKeyExecutorTest {
 
 	@Test
 	public void executeAndSubmitMultipleTasksForMultipleKeys() throws InterruptedException {
-		final SynchronizedPerKeyExecutor<String> underTest = new SynchronizedPerKeyExecutor<>();
+		final PerKeyLockExecutor<String> underTest = new PerKeyLockExecutor<>();
 
 		final int N = 10000;
 		final CountDownLatch signal = new CountDownLatch(N * 2);
