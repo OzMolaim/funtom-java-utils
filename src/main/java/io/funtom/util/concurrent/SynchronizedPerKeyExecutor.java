@@ -3,63 +3,59 @@ package io.funtom.util.concurrent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public final class SynchronizedPerKeyExecutor<K> {
 
-	private final Map<K, Lock> locks = new HashMap<>();
+	private final Map<K, LockExecutor> executors = new HashMap<>();
 	private final Map<K, Integer> keyUsersCount = new HashMap<>();
 
 	public void execute(K key, Runnable task) {
-		Lock lock = getLockForKey(key);
-		lock.lock();
+		LockExecutor executor = getExecutorForKey(key);
 		try {
-			task.run();
+			executor.execute(task);
 		} finally {
-			lock.unlock();
-			freeLockForKey(key);
+			freeExecutorForKey(key);
 		}
 	}
 
 	public <R> R submit(K key, Callable<R> task) throws Exception {
-		Lock lock = getLockForKey(key);
-		lock.lock();
+		LockExecutor executor = getExecutorForKey(key);
 		try {
-			return task.call();
+			return executor.submit(task);
 		} finally {
-			lock.unlock();
-			freeLockForKey(key);
+			freeExecutorForKey(key);
 		}
 	}
 
 	public <R> R submitUnchecked(K key, Callable<R> task) {
+		LockExecutor executor = getExecutorForKey(key);
 		try {
-			return submit(key, task);
-		} catch (Exception e) {
-			throw new UncheckedExecutionException(e);
+			return executor.submitUnchecked(task);
+		} finally {
+			freeExecutorForKey(key);
 		}
 	}
 
-	private synchronized Lock getLockForKey(K key) {
-		Lock result;
+	private synchronized LockExecutor getExecutorForKey(K key) {
+		LockExecutor result;
 		Integer currentUsers = keyUsersCount.get(key);
 		if (currentUsers == null) {
 			keyUsersCount.put(key, 1);
-			result = new ReentrantLock();
-			locks.put(key, result);
+			result = new LockExecutor(new ReentrantLock());
+			executors.put(key, result);
 		} else {
 			keyUsersCount.put(key, currentUsers + 1);
-			result = locks.get(key);
+			result = executors.get(key);
 		}
 		return result;
 	}
 
-	private synchronized void freeLockForKey(K key) {
+	private synchronized void freeExecutorForKey(K key) {
 		int currentUsers = keyUsersCount.get(key);
 		if (currentUsers == 1) {
 			keyUsersCount.remove(key);
-			locks.remove(key);
+			executors.remove(key);
 		} else {
 			keyUsersCount.put(key, currentUsers - 1);
 		}
