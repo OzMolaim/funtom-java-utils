@@ -1,20 +1,16 @@
 package io.funtom.util.concurrent;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class SynchronizedPerKeyExecutorTest {
 
@@ -40,7 +36,7 @@ public class SynchronizedPerKeyExecutorTest {
 		assertTrue(result);
 	}
 
-	@Test(expected = SynchronizedPerKeyExecutor.UncheckedExecutionException.class)
+	@Test(expected = UncheckedExecutionException.class)
 	public void submitUncheckedThrowsOnException() throws Exception {
 		SynchronizedPerKeyExecutor<Integer> underTest = new SynchronizedPerKeyExecutor<>();
 		boolean result = underTest.submitUnchecked(1, () -> {throw new Exception();});
