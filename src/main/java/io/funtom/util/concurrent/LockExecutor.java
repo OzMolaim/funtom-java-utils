@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class LockExecutor {
+public final class LockExecutor {
 
     private final Lock lock;
 

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class PerKeyReadWriteLockExecutor<KEY_TYPE> {
+public final class PerKeyReadWriteLockExecutor<KEY_TYPE> {
 
     private final Map<KEY_TYPE, ReadWriteLockExecutor> executors = new HashMap<>();
     private final Map<KEY_TYPE, Integer> keyUsersCount = new HashMap<>();

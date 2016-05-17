@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ReadWriteLockExecutor {
+public final class ReadWriteLockExecutor {
 
     private final LockExecutor readExecutor;
     private final LockExecutor writeExecutor;
