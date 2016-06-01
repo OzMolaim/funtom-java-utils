@@ -2,8 +2,8 @@ package io.funtom.util.concurrent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 public final class PerKeyLockExecutor<KEY_TYPE> {
 
@@ -19,19 +19,10 @@ public final class PerKeyLockExecutor<KEY_TYPE> {
 		}
 	}
 
-	public <R> R submit(KEY_TYPE key, Callable<R> task) throws Exception {
+	public <R> R execute(KEY_TYPE key, Supplier<R> task) {
 		LockExecutor executor = getExecutorForKey(key);
 		try {
-			return executor.submit(task);
-		} finally {
-			freeExecutorForKey(key);
-		}
-	}
-
-	public <R> R submitUnchecked(KEY_TYPE key, Callable<R> task) {
-		LockExecutor executor = getExecutorForKey(key);
-		try {
-			return executor.submitUnchecked(task);
+			return executor.execute(task);
 		} finally {
 			freeExecutorForKey(key);
 		}

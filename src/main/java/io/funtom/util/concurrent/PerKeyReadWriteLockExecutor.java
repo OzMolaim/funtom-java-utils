@@ -2,8 +2,8 @@ package io.funtom.util.concurrent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 public final class PerKeyReadWriteLockExecutor<KEY_TYPE> {
 
@@ -19,19 +19,10 @@ public final class PerKeyReadWriteLockExecutor<KEY_TYPE> {
         }
     }
 
-    public <R> R readSubmit(KEY_TYPE key, Callable<R> task) throws Exception {
+    public <R> R readExecute(KEY_TYPE key, Supplier<R> task) throws Exception {
         ReadWriteLockExecutor executor = getExecutorForKey(key);
         try {
-            return executor.readSubmit(task);
-        } finally {
-            freeExecutorForKey(key);
-        }
-    }
-
-    public <R> R readSubmitUnchecked(KEY_TYPE key, Callable<R> task) {
-        ReadWriteLockExecutor executor = getExecutorForKey(key);
-        try {
-            return executor.readSubmitUnchecked(task);
+            return executor.readExecute(task);
         } finally {
             freeExecutorForKey(key);
         }
@@ -46,19 +37,10 @@ public final class PerKeyReadWriteLockExecutor<KEY_TYPE> {
         }
     }
 
-    public <R> R writeSubmit(KEY_TYPE key, Callable<R> task) throws Exception {
+    public <R> R writeExecute(KEY_TYPE key, Supplier<R> task) {
         ReadWriteLockExecutor executor = getExecutorForKey(key);
         try {
-            return executor.writeSubmit(task);
-        } finally {
-            freeExecutorForKey(key);
-        }
-    }
-
-    public <R> R writeSubmitUnchecked(KEY_TYPE key, Callable<R> task) {
-        ReadWriteLockExecutor executor = getExecutorForKey(key);
-        try {
-            return executor.writeSubmitUnchecked(task);
+            return executor.writeExecute(task);
         } finally {
             freeExecutorForKey(key);
         }

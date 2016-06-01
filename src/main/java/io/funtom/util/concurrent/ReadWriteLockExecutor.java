@@ -1,8 +1,8 @@
 package io.funtom.util.concurrent;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 public final class ReadWriteLockExecutor {
 
@@ -24,23 +24,15 @@ public final class ReadWriteLockExecutor {
         readExecutor.execute(task);
     }
 
-    public <R> R readSubmit(Callable<R> task) throws Exception {
-        return readExecutor.submit(task);
-    }
-
-    public <R> R readSubmitUnchecked(Callable<R> task) {
-        return readExecutor.submitUnchecked(task);
+    public <R> R readExecute(Supplier<R> task) {
+        return readExecutor.execute(task);
     }
 
     public void writeExecute(Runnable task) {
         writeExecutor.execute(task);
     }
 
-    public <R> R writeSubmit(Callable<R> task) throws Exception {
-        return writeExecutor.submit(task);
-    }
-
-    public <R> R writeSubmitUnchecked(Callable<R> task) {
-        return writeExecutor.submitUnchecked(task);
+    public <R> R writeExecute(Supplier<R> task) {
+        return writeExecutor.execute(task);
     }
 }

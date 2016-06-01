@@ -4,14 +4,11 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -39,8 +36,8 @@ public class ConcurrentBufferTest {
     }
 
     @Test
-    public void stressTheBuffer() throws InterruptedException {
-        try (BufferStressTester stress = new BufferStressTester(4, 26)) {
+    public void stressTheBuffer() throws InterruptedException, ExecutionException, BrokenBarrierException {
+        try (BufferStressTester stress = new BufferStressTester(5, 30)) {
             stress.test();
         }
     }
@@ -56,77 +53,92 @@ public class ConcurrentBufferTest {
     private class BufferStressTester implements AutoCloseable {
 
         final ConcurrentBuffer<Integer> underTest = new ConcurrentBuffer<>();
-        final List<Integer> actualReadFromBuffer = new Vector<>();
+        final List<Integer> actualReadFromBuffer = new ArrayList<>();
 
-        final long writesPerWriter = 250000;
+        final long writesPerWriter = 500000;
         final int numberOfReaders;
         final int numberOfWriters;
 
         final ExecutorService pool;
-        final CountDownLatch taskStartSignal;
-        final CountDownLatch taskStopSignal;
+        final CyclicBarrier taskStartSignal;
+        final CyclicBarrier taskStopSignal;
 
         BufferStressTester(int readers, int writers) {
             this.numberOfReaders = readers;
             this.numberOfWriters = writers;
-            this.taskStartSignal = new CountDownLatch(readers + writers);
-            this.taskStopSignal = new CountDownLatch(readers + writers);
+            this.taskStartSignal = new CyclicBarrier(readers + writers);
+            this.taskStopSignal = new CyclicBarrier(readers + writers + 1);
             this.pool = Executors.newFixedThreadPool(readers + writers);
         }
 
-        void test() {
+        void test() throws ExecutionException, InterruptedException, BrokenBarrierException {
 
             for (int i = 0; i < numberOfWriters; i++) {
                 final int elementToWrite = i;
-                pool.execute(() -> writerTask(elementToWrite));
+                CompletableFuture.runAsync(() -> writerTask(elementToWrite), pool).exceptionally(
+                    err -> {
+                        throw new RuntimeException("Failure during writer task - " + elementToWrite, err);
+                    }
+                );
             }
 
+            List<CompletableFuture<List<Integer>>> readers = new ArrayList<>();
             for (int i = 0; i < numberOfReaders; i++) {
-                pool.submit(this::readerTask);
+                CompletableFuture<List<Integer>> r = CompletableFuture.supplyAsync(this::readerTask, pool).exceptionally(
+                        err -> {
+                            throw new RuntimeException("Failure during reader task", err);
+                        }
+                );
+                readers.add(r);
             }
 
-            try {
-                taskStopSignal.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            taskStopSignal.await();
+            for (CompletableFuture<List<Integer>> f : readers) {
+                actualReadFromBuffer.addAll(f.get());
             }
 
-            actualReadFromBuffer.addAll(underTest.getAndRemoveAll());
             assertAllWritesWhereReadFromBuffer();
         }
 
         void assertAllWritesWhereReadFromBuffer() {
-            Map<Integer, Long> elementToOccurences = actualReadFromBuffer.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            Assert.assertEquals(IntStream.range(0, numberOfWriters).boxed().collect(Collectors.toSet()), elementToOccurences.keySet());
-            Assert.assertEquals(Arrays.asList(writesPerWriter), elementToOccurences.values().stream().distinct().collect(Collectors.toList()));
+            Map<Integer, Long> elementToOccurrences = actualReadFromBuffer.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            Assert.assertEquals(IntStream.range(0, numberOfWriters).boxed().collect(Collectors.toSet()), elementToOccurrences.keySet());
+            Assert.assertEquals(Arrays.asList(writesPerWriter), elementToOccurrences.values().stream().distinct().collect(Collectors.toList()));
         }
 
         void writerTask(final int elementToWrite) {
             try {
-
-                taskStartSignal.countDown();
-                taskStartSignal.await();
-
-                for (int i = 0; i < writesPerWriter; i++) {
-                    underTest.add(elementToWrite);
-                }
-
+                tryWriterTask(elementToWrite);
             } catch (Exception e) {
-                throw new RuntimeException("Writer task failed", e);
-            } finally {
-                taskStopSignal.countDown();
+                throw new RuntimeException(e);
             }
         }
 
-        void readerTask() {
+        void tryWriterTask(final int elementToWrite) throws BrokenBarrierException, InterruptedException {
             try {
-                taskStartSignal.countDown();
                 taskStartSignal.await();
-                actualReadFromBuffer.addAll(underTest.getAndRemoveAll());
-            } catch (Exception e) {
-                throw new RuntimeException("Reader task failed", e);
+                for (int i = 0; i < writesPerWriter; i++) {
+                    underTest.add(elementToWrite);
+                }
             } finally {
-                taskStopSignal.countDown();
+                taskStopSignal.await();
+            }
+        }
+
+        List<Integer> readerTask() {
+            try {
+                return tryReaderTask();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        List<Integer> tryReaderTask() throws BrokenBarrierException, InterruptedException {
+            try {
+                taskStartSignal.await();
+                return underTest.getAndRemoveAll();
+            } finally {
+                taskStopSignal.await();
             }
         }
 

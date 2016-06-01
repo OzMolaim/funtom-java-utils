@@ -6,9 +6,13 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.assertTrue;
 
@@ -23,26 +27,19 @@ public class PerKeyLockExecutorTest {
 	}
 	
 	@Test
-	public void submitSimpleTask() throws Exception {
+	public void submitSimpleTask() {
 		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
-		boolean result = underTest.submit(1, () -> true);
+		boolean result = underTest.execute(1, () -> true);
 		assertTrue(result);
 	}
 	
 	@Test
-	public void submitUncheckedSimpleTask() throws Exception {
+	public void submitUncheckedSimpleTask() {
 		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
-		boolean result = underTest.submitUnchecked(1, () -> true);
+		boolean result = underTest.execute(1, () -> true);
 		assertTrue(result);
 	}
 
-	@Test(expected = UncheckedExecutionException.class)
-	public void submitUncheckedThrowsOnException() throws Exception {
-		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
-		boolean result = underTest.submitUnchecked(1, () -> {throw new Exception();});
-		assertTrue(result);
-	}
-	
 	@Test
 	public void executeManyTasksForSameKey() throws InterruptedException {
 		final PerKeyLockExecutor<String> underTest = new PerKeyLockExecutor<>();
@@ -56,7 +53,7 @@ public class PerKeyLockExecutorTest {
 			signal.countDown();
 		};
 		
-		final Callable<Integer> unsafeTaskCallable = () -> {
+		final Supplier<Integer> unsafeTaskCallable = () -> {
 			actual.add(seq.incrementAndGet());
 			signal.countDown();
 			return 1;
@@ -67,9 +64,9 @@ public class PerKeyLockExecutorTest {
 			if (i % 3 == 0) {
 				pool.execute(() -> underTest.execute("KEY", unsafeTask));
 			} else if (i % 3 == 1){
-				pool.submit((() -> underTest.submit("KEY", unsafeTaskCallable)));
+				pool.submit((() -> underTest.execute("KEY", unsafeTaskCallable)));
 			}  else {
-				pool.submit((() -> underTest.submitUnchecked("KEY", unsafeTaskCallable)));
+				pool.submit((() -> underTest.execute("KEY", unsafeTaskCallable)));
 			}
 		}
 
@@ -100,7 +97,7 @@ public class PerKeyLockExecutorTest {
 			}
 		};
 		
-		final Callable<Long> unsafeTask2 = () -> {
+		final Supplier<Long> unsafeTask2 = () -> {
 			try {
 				long res = System.currentTimeMillis();
 				actual2.add(res);
@@ -113,7 +110,7 @@ public class PerKeyLockExecutorTest {
 		ExecutorService pool = Executors.newFixedThreadPool(50);
 		for (int i = 0; i < N; i++) {
 			pool.execute(() -> underTest.execute("KEY1", unsafeTask1));
-			pool.submit(() -> underTest.submit("KEY2", unsafeTask2));
+			pool.submit(() -> underTest.execute("KEY2", unsafeTask2));
 		}
 
 		shutdownAndWait(signal, pool);

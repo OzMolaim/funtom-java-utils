@@ -1,8 +1,8 @@
 package io.funtom.util.concurrent;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 public final class LockExecutor {
 
@@ -25,20 +25,12 @@ public final class LockExecutor {
         }
     }
 
-    public <R> R submit(Callable<R> task) throws Exception {
+    public <R> R execute(Supplier<R> task) {
         lock.lock();
         try {
-            return task.call();
+            return task.get();
         } finally {
             lock.unlock();
-        }
-    }
-
-    public <R> R submitUnchecked(Callable<R> task) {
-        try {
-            return submit(task);
-        } catch (Exception e) {
-            throw new UncheckedExecutionException(e);
         }
     }
 }
