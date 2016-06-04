@@ -16,11 +16,11 @@ import java.util.function.Supplier;
 
 import static org.junit.Assert.assertTrue;
 
-public class PerKeyLockExecutorTest {
+public class PerKeySynchronizedExecutorTest {
 
 	@Test
 	public void executeSimpleTask() {
-		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
+		PerKeySynchronizedExecutor<Integer> underTest = new PerKeySynchronizedExecutor<>();
 		final AtomicBoolean bool = new AtomicBoolean(false);
 		underTest.execute(1, () -> bool.set(true));
 		assertTrue(bool.get());
@@ -28,21 +28,21 @@ public class PerKeyLockExecutorTest {
 	
 	@Test
 	public void submitSimpleTask() {
-		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
+		PerKeySynchronizedExecutor<Integer> underTest = new PerKeySynchronizedExecutor<>();
 		boolean result = underTest.execute(1, () -> true);
 		assertTrue(result);
 	}
 	
 	@Test
 	public void submitUncheckedSimpleTask() {
-		PerKeyLockExecutor<Integer> underTest = new PerKeyLockExecutor<>();
+		PerKeySynchronizedExecutor<Integer> underTest = new PerKeySynchronizedExecutor<>();
 		boolean result = underTest.execute(1, () -> true);
 		assertTrue(result);
 	}
 
 	@Test
 	public void executeManyTasksForSameKey() throws InterruptedException {
-		final PerKeyLockExecutor<String> underTest = new PerKeyLockExecutor<>();
+		final PerKeySynchronizedExecutor<String> underTest = new PerKeySynchronizedExecutor<>();
 		final int N = 10000;
 		final CountDownLatch signal = new CountDownLatch(N);
 		final List<Integer> actual = new ArrayList<>();
@@ -82,7 +82,7 @@ public class PerKeyLockExecutorTest {
 
 	@Test
 	public void executeAndSubmitMultipleTasksForMultipleKeys() throws InterruptedException {
-		final PerKeyLockExecutor<String> underTest = new PerKeyLockExecutor<>();
+		final PerKeySynchronizedExecutor<String> underTest = new PerKeySynchronizedExecutor<>();
 
 		final int N = 10000;
 		final CountDownLatch signal = new CountDownLatch(N * 2);

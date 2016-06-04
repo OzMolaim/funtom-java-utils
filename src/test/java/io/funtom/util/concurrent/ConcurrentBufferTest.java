@@ -60,14 +60,12 @@ public class ConcurrentBufferTest {
         final int numberOfWriters;
 
         final ExecutorService pool;
-        final CyclicBarrier taskStartSignal;
-        final CyclicBarrier taskStopSignal;
+        final CyclicBarrier startStopTaskBarrier;
 
         BufferStressTester(int readers, int writers) {
             this.numberOfReaders = readers;
             this.numberOfWriters = writers;
-            this.taskStartSignal = new CyclicBarrier(readers + writers);
-            this.taskStopSignal = new CyclicBarrier(readers + writers + 1);
+            this.startStopTaskBarrier = new CyclicBarrier(readers + writers);
             this.pool = Executors.newFixedThreadPool(readers + writers);
         }
 
@@ -92,7 +90,6 @@ public class ConcurrentBufferTest {
                 readers.add(r);
             }
 
-            taskStopSignal.await();
             for (CompletableFuture<List<Integer>> f : readers) {
                 actualReadFromBuffer.addAll(f.get());
             }
@@ -116,12 +113,12 @@ public class ConcurrentBufferTest {
 
         void tryWriterTask(final int elementToWrite) throws BrokenBarrierException, InterruptedException {
             try {
-                taskStartSignal.await();
+                startStopTaskBarrier.await();
                 for (int i = 0; i < writesPerWriter; i++) {
                     underTest.add(elementToWrite);
                 }
             } finally {
-                taskStopSignal.await();
+                startStopTaskBarrier.await();
             }
         }
 
@@ -135,10 +132,10 @@ public class ConcurrentBufferTest {
 
         List<Integer> tryReaderTask() throws BrokenBarrierException, InterruptedException {
             try {
-                taskStartSignal.await();
+                startStopTaskBarrier.await();
                 return underTest.getAndRemoveAll();
             } finally {
-                taskStopSignal.await();
+                startStopTaskBarrier.await();
             }
         }
 

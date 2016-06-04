@@ -3,8 +3,8 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.funtom</groupId>
-	<artifactId>util</artifactId>
-	<version>0.1-ALPHA</version>
+	<artifactId>java-utils</artifactId>
+	<version>0.1</version>
 	<name>Funtom Utils</name>
 
 	<properties>

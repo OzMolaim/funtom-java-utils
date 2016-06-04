@@ -4,15 +4,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-public final class LockExecutor {
+public final class SynchronizedExecutor {
 
     private final Lock lock;
 
-    public LockExecutor() {
+    public SynchronizedExecutor() {
         this.lock = new ReentrantLock();
     }
 
-    public LockExecutor(Lock lock) {
+    public SynchronizedExecutor(Lock lock) {
         this.lock = lock;
     }
 

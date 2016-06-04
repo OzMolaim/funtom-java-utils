@@ -4,20 +4,20 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
-public final class ReadWriteLockExecutor {
+public final class ReadWriteSynchronizedExecutor {
 
-    private final LockExecutor readExecutor;
-    private final LockExecutor writeExecutor;
+    private final SynchronizedExecutor readExecutor;
+    private final SynchronizedExecutor writeExecutor;
 
-    public ReadWriteLockExecutor() {
+    public ReadWriteSynchronizedExecutor() {
         ReadWriteLock lock = new ReentrantReadWriteLock();
-        readExecutor = new LockExecutor(lock.readLock());
-        writeExecutor = new LockExecutor(lock.writeLock());
+        readExecutor = new SynchronizedExecutor(lock.readLock());
+        writeExecutor = new SynchronizedExecutor(lock.writeLock());
     }
 
-    public ReadWriteLockExecutor(ReadWriteLock lock) {
-        readExecutor = new LockExecutor(lock.readLock());
-        writeExecutor = new LockExecutor(lock.writeLock());
+    public ReadWriteSynchronizedExecutor(ReadWriteLock lock) {
+        readExecutor = new SynchronizedExecutor(lock.readLock());
+        writeExecutor = new SynchronizedExecutor(lock.writeLock());
     }
 
     public void readExecute(Runnable task) {
