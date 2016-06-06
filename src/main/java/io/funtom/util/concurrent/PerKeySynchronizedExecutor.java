@@ -1,53 +1,55 @@
 package io.funtom.util.concurrent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 public final class PerKeySynchronizedExecutor<KEY_TYPE> {
 
-	private final Map<KEY_TYPE, SynchronizedExecutor> executors = new HashMap<>();
-	private final Map<KEY_TYPE, Integer> keyUsersCount = new HashMap<>();
+    private static final int CONCURRENCY_LEVEL = 32;
+
+    private final ConcurrencySegment<KEY_TYPE, SynchronizedExecutor>[] concurrencySegments;
+
+    @SuppressWarnings("unchecked")
+    public PerKeySynchronizedExecutor() {
+        concurrencySegments = (ConcurrencySegment<KEY_TYPE, SynchronizedExecutor>[])new ConcurrencySegment[CONCURRENCY_LEVEL];
+        for (int i = 0; i < CONCURRENCY_LEVEL; i++) {
+            concurrencySegments[i] = new ConcurrencySegment<>(SynchronizedExecutor::new);
+        }
+    }
 
 	public void execute(KEY_TYPE key, Runnable task) {
-		SynchronizedExecutor executor = getExecutorForKey(key);
+        ConcurrencySegment<KEY_TYPE, SynchronizedExecutor> s = concurrencySegments[segmentIndex(key)];
+		SynchronizedExecutor executor = s.getValue(key);
 		try {
 			executor.execute(task);
 		} finally {
-			freeExecutorForKey(key);
+			s.releaseKey(key);
 		}
 	}
 
 	public <R> R execute(KEY_TYPE key, Supplier<R> task) {
-		SynchronizedExecutor executor = getExecutorForKey(key);
+        ConcurrencySegment<KEY_TYPE, SynchronizedExecutor> s = concurrencySegments[segmentIndex(key)];
+        SynchronizedExecutor executor = s.getValue(key);
 		try {
 			return executor.execute(task);
 		} finally {
-			freeExecutorForKey(key);
+            s.releaseKey(key);
 		}
 	}
 
-	private synchronized SynchronizedExecutor getExecutorForKey(KEY_TYPE key) {
-		SynchronizedExecutor result;
-		Integer currentUsers = keyUsersCount.get(key);
-		if (currentUsers == null) {
-			keyUsersCount.put(key, 1);
-			result = new SynchronizedExecutor();
-			executors.put(key, result);
-		} else {
-			keyUsersCount.put(key, currentUsers + 1);
-			result = executors.get(key);
-		}
-		return result;
-	}
+    private int segmentIndex(KEY_TYPE key) {
+        int h = key.hashCode();
 
-	private synchronized void freeExecutorForKey(KEY_TYPE key) {
-		int currentUsers = keyUsersCount.get(key);
-		if (currentUsers == 1) {
-			keyUsersCount.remove(key);
-			executors.remove(key);
-		} else {
-			keyUsersCount.put(key, currentUsers - 1);
-		}
-	}
+        // Protection against poor hash functions.
+        // Used by java.util.concurrent.ConcurrentHashMap
+        // Spread bits to regularize both segment and index locations,
+        // using variant of single-word Wang/Jenkins hash.
+        h += (h <<  15) ^ 0xffffcd7d;
+        h ^= (h >>> 10);
+        h += (h <<   3);
+        h ^= (h >>>  6);
+        h += (h <<   2) + (h << 14);
+        h ^= (h >>> 16);
+
+        return Math.abs(h % CONCURRENCY_LEVEL);
+    }
 }
