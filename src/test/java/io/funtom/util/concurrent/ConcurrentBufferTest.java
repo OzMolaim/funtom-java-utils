@@ -4,10 +4,7 @@ import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,8 +41,8 @@ public class ConcurrentBufferTest {
         underTest.add(4);
         Assert.assertThat(Arrays.asList(1,2), Matchers.equalTo(underTest.getAndRemove(2)));
         underTest.add(5);
-        Assert.assertThat(underTest.getAndRemove(0), Matchers.equalTo(Arrays.asList()));
-        Assert.assertThat(underTest.getAndRemove(1), Matchers.equalTo(Arrays.asList(3)));
+        Assert.assertThat(underTest.getAndRemove(0), Matchers.equalTo(Collections.emptyList()));
+        Assert.assertThat(underTest.getAndRemove(1), Matchers.equalTo(Collections.singletonList(3)));
         Assert.assertThat(underTest.getAndRemoveAll(), Matchers.equalTo(Arrays.asList(4,5)));
     }
 
