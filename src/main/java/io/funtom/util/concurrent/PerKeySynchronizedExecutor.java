@@ -8,7 +8,7 @@ public final class PerKeySynchronizedExecutor<KEY_TYPE> {
 
     private final ConcurrencySegment<KEY_TYPE, SynchronizedExecutor>[] concurrencySegments;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked"})
     public PerKeySynchronizedExecutor() {
         concurrencySegments = (ConcurrencySegment<KEY_TYPE, SynchronizedExecutor>[])new ConcurrencySegment[CONCURRENCY_LEVEL];
         for (int i = 0; i < CONCURRENCY_LEVEL; i++) {
