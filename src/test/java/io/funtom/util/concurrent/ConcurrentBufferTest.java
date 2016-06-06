@@ -36,6 +36,20 @@ public class ConcurrentBufferTest {
     }
 
     @Test
+    public void getAndRemove() {
+        ConcurrentBuffer<Integer> underTest = new ConcurrentBuffer<>();
+        underTest.add(1);
+        underTest.add(2);
+        underTest.add(3);
+        underTest.add(4);
+        Assert.assertThat(Arrays.asList(1,2), Matchers.equalTo(underTest.getAndRemove(2)));
+        underTest.add(5);
+        Assert.assertThat(underTest.getAndRemove(0), Matchers.equalTo(Arrays.asList()));
+        Assert.assertThat(underTest.getAndRemove(1), Matchers.equalTo(Arrays.asList(3)));
+        Assert.assertThat(underTest.getAndRemoveAll(), Matchers.equalTo(Arrays.asList(4,5)));
+    }
+
+    @Test
     public void stressTheBuffer() throws InterruptedException, ExecutionException, BrokenBarrierException {
         try (BufferStressTester stress = new BufferStressTester(5, 30)) {
             stress.test();
@@ -47,7 +61,7 @@ public class ConcurrentBufferTest {
     }
 
     private void assertBufferContains(ConcurrentBuffer<Integer> underTest, List<Integer> expected) {
-        Assert.assertThat(expected, Matchers.equalTo(underTest.getAndRemoveAll()));
+        Assert.assertThat(underTest.getAndRemoveAll(), Matchers.equalTo(expected));
     }
 
     private class BufferStressTester implements AutoCloseable {
@@ -55,7 +69,7 @@ public class ConcurrentBufferTest {
         final ConcurrentBuffer<Integer> underTest = new ConcurrentBuffer<>();
         final List<Integer> actualReadFromBuffer = new ArrayList<>();
 
-        final long writesPerWriter = 500000;
+        final int writesPerWriter = 500000;
         final int numberOfReaders;
         final int numberOfWriters;
 
@@ -100,7 +114,7 @@ public class ConcurrentBufferTest {
         void assertAllWritesWhereReadFromBuffer() {
             Map<Integer, Long> elementToOccurrences = actualReadFromBuffer.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             Assert.assertEquals(IntStream.range(0, numberOfWriters).boxed().collect(Collectors.toSet()), elementToOccurrences.keySet());
-            Assert.assertEquals(Arrays.asList(writesPerWriter), elementToOccurrences.values().stream().distinct().collect(Collectors.toList()));
+            Assert.assertEquals(Arrays.asList((long)writesPerWriter), elementToOccurrences.values().stream().distinct().collect(Collectors.toList()));
         }
 
         void writerTask(final int elementToWrite) {
@@ -133,7 +147,10 @@ public class ConcurrentBufferTest {
         List<Integer> tryReaderTask() throws BrokenBarrierException, InterruptedException {
             try {
                 startStopTaskBarrier.await();
-                return underTest.getAndRemoveAll();
+                List<Integer> result = new ArrayList<>();
+                result.addAll(underTest.getAndRemove(writesPerWriter % 2));
+                result.addAll(underTest.getAndRemoveAll());
+                return result;
             } finally {
                 startStopTaskBarrier.await();
             }

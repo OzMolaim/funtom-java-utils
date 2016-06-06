@@ -89,12 +89,9 @@ public class PerKeySynchronizedExecutorTest {
 		final List<Long> actual1 = new ArrayList<>();
 		final List<Long> actual2 = new ArrayList<>();
 
-		final Runnable unsafeTask1 = new Runnable() {
-			@Override
-			public void run() {
-				actual1.add(System.currentTimeMillis());
-				signal.countDown();
-			}
+		final Runnable unsafeTask1 = () -> {
+			actual1.add(System.currentTimeMillis());
+			signal.countDown();
 		};
 		
 		final Supplier<Long> unsafeTask2 = () -> {
