@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * A thread that removes elements from the buffer is guaranteed to see the most updated values in the Buffer at the time the removal began.
  * Subsequent additions during the removals may be returned but are not guaranteed to be returned.
  *
- * @param <T>: The type of the elements in the Buffer
+ * @param <T> The type of the elements in the Buffer
  */
 public final class ConcurrentBuffer<T> {
 
@@ -19,7 +19,7 @@ public final class ConcurrentBuffer<T> {
 
     /**
      * Add single element to the buffer
-     * @param e An element to added to the buffer.
+     * @param e An element to be added to the buffer.
      */
     public void add(T e) {
         buffer.add(e);
@@ -28,7 +28,7 @@ public final class ConcurrentBuffer<T> {
     /**
      * Add collection of elements to the buffer.
      * The operation is not guaranteed to be atomic.
-     * @param elements A collection of elements to added to the buffer.
+     * @param elements A collection of elements to be added to the buffer.
      */
     public void addAll(Collection<T> elements) {
         buffer.addAll(elements);
@@ -51,7 +51,7 @@ public final class ConcurrentBuffer<T> {
     }
 
     /**
-     * Same as {@link #getAndRemoveAll} but only up to maxElementsToRemove will be returned.
+     * Same as {@link #getAndRemoveAll} but only up to maxElementsToRemove elements will be returned.
      *
      * @param maxElementsToRemove - The maximum number elements to be returned from the buffer in the batch. If maxElementsToRemove = 0 returns an empty list.
      *
