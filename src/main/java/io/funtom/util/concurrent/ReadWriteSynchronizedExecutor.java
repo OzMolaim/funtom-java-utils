@@ -15,11 +15,6 @@ public final class ReadWriteSynchronizedExecutor {
         writeExecutor = new SynchronizedExecutor(lock.writeLock());
     }
 
-    public ReadWriteSynchronizedExecutor(ReadWriteLock lock) {
-        readExecutor = new SynchronizedExecutor(lock.readLock());
-        writeExecutor = new SynchronizedExecutor(lock.writeLock());
-    }
-
     public void readExecute(Runnable task) {
         readExecutor.execute(task);
     }

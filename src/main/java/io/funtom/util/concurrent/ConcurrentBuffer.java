@@ -56,6 +56,10 @@ public final class ConcurrentBuffer<T> {
      * @param maxElementsToRemove - The maximum number elements to be returned from the buffer in the batch. If maxElementsToRemove = 0 returns an empty list.
      *
      * @throws IllegalArgumentException - If maxElementsToRemove is negative.
+     *
+     * @return A list contains up to maxElementsToRemove elements, which where in the buffer at the time the removal began.
+     *          If they where maxElementsToRemove elements in the buffer at the time the removal began they are guaranteed to be returned.
+     *          Elements that where added to the buffer during the the removal may be returned but that is not guaranteed.
      */
     public synchronized List<T> getAndRemove(int maxElementsToRemove) {
 

@@ -12,7 +12,7 @@ public final class SynchronizedExecutor {
         this.lock = new ReentrantLock();
     }
 
-    public SynchronizedExecutor(Lock lock) {
+    SynchronizedExecutor(Lock lock) {
         this.lock = lock;
     }
 

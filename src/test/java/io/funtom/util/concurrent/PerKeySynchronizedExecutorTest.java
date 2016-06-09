@@ -136,9 +136,9 @@ public class PerKeySynchronizedExecutorTest {
 
     private class ExecutorStressTester implements AutoCloseable {
 
-        private static final int NUMBER_OF_KEYS = 50;
+        private static final int NUMBER_OF_KEYS = 10;
         private static final int NUMBER_OF_THREADS = 400;
-        private static final int EXECUTIONS_PER_THREAD = 200000;
+        private static final int EXECUTIONS_PER_THREAD = 250000;
         private static final int EXPECTED_MUTATIONS_PER_INSTANCE = NUMBER_OF_THREADS / NUMBER_OF_KEYS * EXECUTIONS_PER_THREAD;
 
         private final PerKeySynchronizedExecutor<Integer> underTest = new PerKeySynchronizedExecutor<>();
@@ -172,7 +172,7 @@ public class PerKeySynchronizedExecutorTest {
         public void close() throws InterruptedException {
             if (pool != null) {
                 pool.shutdown();
-                if (!pool.awaitTermination(20, TimeUnit.SECONDS)) {
+                if (!pool.awaitTermination(1, TimeUnit.MINUTES)) {
                     pool.shutdownNow();
                 }
             }

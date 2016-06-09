@@ -29,4 +29,9 @@ public class MutableClass {
         Assert.assertEquals(expected, n4);
         Assert.assertEquals(expected, n5);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d, %d, %d, %d, %d", n1, n2, n3, n4, n5);
+    }
 }
