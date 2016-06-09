@@ -19,6 +19,7 @@ public final class ConcurrentBuffer<T> {
 
     /**
      * Add single element to the buffer
+     *
      * @param e An element to be added to the buffer.
      */
     public void add(T e) {
@@ -28,6 +29,7 @@ public final class ConcurrentBuffer<T> {
     /**
      * Add collection of elements to the buffer.
      * The operation is not guaranteed to be atomic.
+     *
      * @param elements A collection of elements to be added to the buffer.
      */
     public void addAll(Collection<T> elements) {
@@ -39,11 +41,11 @@ public final class ConcurrentBuffer<T> {
      * Calling thread may be suspended since only one thread can remove from the buffer at a time.
      *
      * @return A list contains all the element in the buffer at the time the removal began.
-     *          Elements that where added to the buffer during the the removal may be returned but it is not guaranteed
+     * Elements that where added to the buffer during the the removal may be returned but it is not guaranteed
      */
     public synchronized List<T> getAndRemoveAll() {
         List<T> result = new ArrayList<>();
-        for (Iterator<T> it = buffer.iterator() ; it.hasNext() ; ) {
+        for (Iterator<T> it = buffer.iterator(); it.hasNext(); ) {
             result.add(it.next());
             it.remove();
         }
@@ -54,12 +56,10 @@ public final class ConcurrentBuffer<T> {
      * Same as {@link #getAndRemoveAll} but only up to maxElementsToRemove elements will be returned.
      *
      * @param maxElementsToRemove - The maximum number elements to be returned from the buffer in the batch. If maxElementsToRemove = 0 returns an empty list.
-     *
-     * @throws IllegalArgumentException - If maxElementsToRemove is negative.
-     *
      * @return A list contains up to maxElementsToRemove elements, which where in the buffer at the time the removal began.
-     *          If they where maxElementsToRemove elements in the buffer at the time the removal began they are guaranteed to be returned.
-     *          Elements that where added to the buffer during the the removal may be returned but that is not guaranteed.
+     * If they where maxElementsToRemove elements in the buffer at the time the removal began they are guaranteed to be returned.
+     * Elements that where added to the buffer during the the removal may be returned but that is not guaranteed.
+     * @throws IllegalArgumentException - If maxElementsToRemove is negative.
      */
     public synchronized List<T> getAndRemove(int maxElementsToRemove) {
 
@@ -69,7 +69,7 @@ public final class ConcurrentBuffer<T> {
         int remaining = maxElementsToRemove;
 
         List<T> result = new ArrayList<>();
-        for (Iterator<T> it = buffer.iterator() ; it.hasNext() && remaining > 0 ; ) {
+        for (Iterator<T> it = buffer.iterator(); it.hasNext() && remaining > 0; ) {
             result.add(it.next());
             it.remove();
             remaining--;

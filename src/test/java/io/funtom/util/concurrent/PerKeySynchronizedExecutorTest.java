@@ -124,7 +124,7 @@ public class PerKeySynchronizedExecutorTest {
     private void assertAscendingOrder(List<Long> actual1) {
         for (int i = 1; i < actual1.size(); i++) {
             String msg = "Element: " + i;
-            assertTrue(msg, actual1.get(i-1) <= actual1.get(i));
+            assertTrue(msg, actual1.get(i - 1) <= actual1.get(i));
         }
     }
 
@@ -198,7 +198,8 @@ public class PerKeySynchronizedExecutorTest {
                     mutableInstance.executeNonAtomicMutation();
                     mutableInstance.assertConsistency();
                 });
-            };
+            }
+            ;
         }
 
         void executeSupplier(final int key) {
@@ -216,7 +217,8 @@ public class PerKeySynchronizedExecutorTest {
                     mutableInstance.assertConsistency();
                     return key;
                 });
-            };
+            }
+            ;
         }
     }
 }

@@ -10,7 +10,7 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
 
     @SuppressWarnings({"unchecked"})
     public PerKeyReadWriteSynchronizedExecutor() {
-        concurrencySegments = (ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor>[])new ConcurrencySegment[CONCURRENCY_LEVEL];
+        concurrencySegments = (ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor>[]) new ConcurrencySegment[CONCURRENCY_LEVEL];
         for (int i = 0; i < CONCURRENCY_LEVEL; i++) {
             concurrencySegments[i] = new ConcurrencySegment<>(ReadWriteSynchronizedExecutor::new);
         }

@@ -61,7 +61,7 @@ final class ConcurrencySegment<K, V> {
         @Override
         @SuppressWarnings("unchecked")
         public boolean equals(Object obj) {
-            return ((Entry)obj).users == this.users;
+            return ((Entry) obj).users == this.users;
         }
 
         @Override

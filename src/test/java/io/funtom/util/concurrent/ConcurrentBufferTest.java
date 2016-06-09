@@ -39,11 +39,11 @@ public class ConcurrentBufferTest {
         underTest.add(2);
         underTest.add(3);
         underTest.add(4);
-        Assert.assertThat(Arrays.asList(1,2), Matchers.equalTo(underTest.getAndRemove(2)));
+        Assert.assertThat(Arrays.asList(1, 2), Matchers.equalTo(underTest.getAndRemove(2)));
         underTest.add(5);
         Assert.assertThat(underTest.getAndRemove(0), Matchers.equalTo(Collections.emptyList()));
         Assert.assertThat(underTest.getAndRemove(1), Matchers.equalTo(Collections.singletonList(3)));
-        Assert.assertThat(underTest.getAndRemoveAll(), Matchers.equalTo(Arrays.asList(4,5)));
+        Assert.assertThat(underTest.getAndRemoveAll(), Matchers.equalTo(Arrays.asList(4, 5)));
     }
 
     @Test
@@ -85,9 +85,9 @@ public class ConcurrentBufferTest {
             for (int i = 0; i < numberOfWriters; i++) {
                 final int elementToWrite = i;
                 CompletableFuture.runAsync(() -> writerTask(elementToWrite), pool).exceptionally(
-                    err -> {
-                        throw new RuntimeException("Failure during writer task - " + elementToWrite, err);
-                    }
+                        err -> {
+                            throw new RuntimeException("Failure during writer task - " + elementToWrite, err);
+                        }
                 );
             }
 
@@ -111,7 +111,7 @@ public class ConcurrentBufferTest {
         void assertAllWritesWhereReadFromBuffer() {
             Map<Integer, Long> elementToOccurrences = actualReadFromBuffer.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             Assert.assertEquals(IntStream.range(0, numberOfWriters).boxed().collect(Collectors.toSet()), elementToOccurrences.keySet());
-            Assert.assertEquals(Arrays.asList((long)writesPerWriter), elementToOccurrences.values().stream().distinct().collect(Collectors.toList()));
+            Assert.assertEquals(Arrays.asList((long) writesPerWriter), elementToOccurrences.values().stream().distinct().collect(Collectors.toList()));
         }
 
         void writerTask(final int elementToWrite) {
