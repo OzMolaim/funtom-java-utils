@@ -17,8 +17,7 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
     }
 
     public void readExecute(KEY_TYPE key, Runnable task) {
-        int segmentIndex = HashUtil.boundedHash(key, CONCURRENCY_LEVEL);
-        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = concurrencySegments[segmentIndex];
+        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = getSegment(key);
         ReadWriteSynchronizedExecutor executor = s.getValue(key);
         try {
             executor.readExecute(task);
@@ -28,8 +27,7 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
     }
 
     public <R> R readExecute(KEY_TYPE key, Supplier<R> task) throws Exception {
-        int segmentIndex = HashUtil.boundedHash(key, CONCURRENCY_LEVEL);
-        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = concurrencySegments[segmentIndex];
+        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = getSegment(key);
         ReadWriteSynchronizedExecutor executor = s.getValue(key);
         try {
             return executor.readExecute(task);
@@ -39,8 +37,7 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
     }
 
     public void writeExecute(KEY_TYPE key, Runnable task) {
-        int segmentIndex = HashUtil.boundedHash(key, CONCURRENCY_LEVEL);
-        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = concurrencySegments[segmentIndex];
+        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = getSegment(key);
         ReadWriteSynchronizedExecutor executor = s.getValue(key);
         try {
             executor.writeExecute(task);
@@ -50,13 +47,17 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
     }
 
     public <R> R writeExecute(KEY_TYPE key, Supplier<R> task) {
-        int segmentIndex = HashUtil.boundedHash(key, CONCURRENCY_LEVEL);
-        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = concurrencySegments[segmentIndex];
+        ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = getSegment(key);
         ReadWriteSynchronizedExecutor executor = s.getValue(key);
         try {
             return executor.writeExecute(task);
         } finally {
             s.releaseKey(key);
         }
+    }
+
+    private ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> getSegment(KEY_TYPE key) {
+        int segmentIndex = HashUtil.boundedHash(key, CONCURRENCY_LEVEL);
+        return concurrencySegments[segmentIndex];
     }
 }
