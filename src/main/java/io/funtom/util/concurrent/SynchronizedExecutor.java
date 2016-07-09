@@ -8,9 +8,9 @@ import java.util.function.Supplier;
  * An Executor which executes tasks on the caller thread.
  * The tasks will be executed synchronously, so no overlapping between two tasks running on different threads will ever occur.
  * Calling threads might be suspended.
- * Executing a task has the same memory semantics as locking and releasing java.util.concurrent.locks.Lock.
+ * Executing a task has the same memory semantics as locking and releasing a java.util.concurrent.locks.{@link Lock}.
  */
-public final class SynchronizedExecutor implements Executor {
+public final class SynchronizedExecutor {
 
     private final Lock lock;
 
@@ -22,7 +22,6 @@ public final class SynchronizedExecutor implements Executor {
         this.lock = lock;
     }
 
-    @Override
     public void execute(Runnable task) {
         lock.lock();
         try {
@@ -32,7 +31,6 @@ public final class SynchronizedExecutor implements Executor {
         }
     }
 
-    @Override
     public <R> R execute(Supplier<R> task) {
         lock.lock();
         try {

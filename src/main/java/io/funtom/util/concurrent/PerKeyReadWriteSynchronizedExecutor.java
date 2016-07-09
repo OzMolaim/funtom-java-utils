@@ -1,7 +1,25 @@
 package io.funtom.util.concurrent;
 
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.function.Supplier;
 
+/**
+ * An Executor which executes tasks on the caller thread.
+ * The tasks will be executed synchronously on a <b>per-key basis</b>.
+ * By saying <b>per-key</b>, we mean that thread safety is guaranteed for threads calling it with equals keys.
+ * For different threads calling the executor with equals keys,
+ * <p>
+ * Calls to readExecute(...) methods:
+ * <ul><li>Never lock each other</li>
+ * <li>Have the same memory semantics as locking and unlocking the <b>read</b> lock of a java.util.concurrent.lock.{@link ReadWriteLock}</li></ul>
+ * <p>
+ * Calls to writeExecute(...) methods:
+ * <ul><li>Never overlaps with any other calls to execute methods</li>
+ * <li>Have the same memory semantics as locking and unlocking the <b>write</b> lock of a java.util.concurrent.lock.{@link ReadWriteLock}</li></ul>
+ * <p>
+ * On the other hand, the executor is implemented so calls from different threads, with keys that are not equals, will be executed concurrently with minimal contention between the calls.
+ * Calling threads might be suspended.
+ */
 public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
 
     private static final int CONCURRENCY_LEVEL = 32;
