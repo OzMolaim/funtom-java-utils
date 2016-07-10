@@ -11,4 +11,5 @@ buildNumber.properties
 .project
 .project
 .settings/
-
+*.iml
+*.idea/
