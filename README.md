@@ -1,5 +1,9 @@
 **A common utilities library for Java and JVM based languages.**
 
+Versions
+----
+* **0.1 (current)** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.1]
+
 Binaries
 ----
 
@@ -34,9 +38,6 @@ Grape:
 )
 ```
 
-Release Notes
-----
-* [Version 0.1][RN v0.1]
 
 License
 ----
@@ -44,4 +45,5 @@ License
 [Apache License, Version 2.0][APLV2]
 
 [RN v0.1]:<https://github.com/funtom-io/funtom-java-utils/releases/tag/v0.1>
+[JDOCS v0.1]:<http://funtom-io.github.io/funtom-java-utils/releases/0.1/javadoc/>
 [APLV2]:<http://www.apache.org/licenses/LICENSE-2.0>
