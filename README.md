@@ -1,6 +1,5 @@
-# funtom java utils
+# A common utilities library for Java and other JVM based languages
 
-**A common utilities library for Java and JVM based languages.**
 
 Versions
 ----
