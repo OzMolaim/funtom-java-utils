@@ -10,7 +10,7 @@ import java.util.function.Supplier;
  * When two threads calling the executor with equals keys, the executions will never overlap each other.
  * On the other hand, the executor is implemented so calls from different threads, with keys that are not equals, will be executed concurrently with minimal contention between the calls.
  * Calling threads might be suspended.
- * Calling execute from different thread with equals keys has the same memory semantics as locking and releasing a java.util.concurrent.locks.{@link Lock}.
+ * Calling execute from different threads with equals keys has the same memory semantics as locking and releasing a java.util.concurrent.locks.{@link Lock}.
  */
 public final class PerKeySynchronizedExecutor<KEY_TYPE> {
 

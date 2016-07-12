@@ -67,7 +67,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>pre-release</id>
             <build>
             <plugins>
                 <plugin>
