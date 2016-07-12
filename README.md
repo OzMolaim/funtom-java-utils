@@ -1,7 +1,7 @@
 # A common utilities library for Java and other JVM based languages
 
 
-Versions
+Releases
 ----
 * **0.1 (current)** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.1]
 
