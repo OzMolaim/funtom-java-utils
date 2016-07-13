@@ -3,9 +3,7 @@ Common Utilities Library for Java and Other JVM Based Languages
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/)
 
-Requirements
-----
-JDK 8
+Requires JDK 8
 
 Releases
 ----
