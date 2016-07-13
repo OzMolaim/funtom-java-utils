@@ -1,10 +1,8 @@
-funtom-java-utils
+A common utilities library for Java and other JVM based languages. Requires JDK 8.
 ====================================================================================
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/)
 
-A common utilities library for Java and other JVM based languages.
-Requires JDK 8.
 
 Releases
 ----
