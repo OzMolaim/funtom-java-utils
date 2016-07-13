@@ -1,9 +1,10 @@
-funtom-java-utils: A common utilities library for Java and other JVM based languages
+funtom-java-utils
 ====================================================================================
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.funtom/java-utils/)
 
-Requires JDK 8
+A common utilities library for Java and other JVM based languages.
+Requires JDK 8.
 
 Releases
 ----
@@ -34,13 +35,6 @@ libraryDependencies += "io.funtom" % "java-utils" % "0.1"
 Ivy:
 ```xml
 <dependency org="io.funtom" name="java-utils" rev="0.1" />
-```
-
-Grape:
-```groovy
-@Grapes(
-    @Grab(group='io.funtom', module='java-utils', version='0.1')
-)
 ```
 
 
