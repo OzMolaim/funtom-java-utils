@@ -138,7 +138,7 @@ public class PerKeySynchronizedExecutorTest {
 
         private static final int NUMBER_OF_KEYS = 10;
         private static final int NUMBER_OF_THREADS = 400;
-        private static final int EXECUTIONS_PER_THREAD = 250000;
+        private static final int EXECUTIONS_PER_THREAD = 1000;
         private static final int EXPECTED_MUTATIONS_PER_INSTANCE = NUMBER_OF_THREADS / NUMBER_OF_KEYS * EXECUTIONS_PER_THREAD;
 
         private final PerKeySynchronizedExecutor<Integer> underTest = new PerKeySynchronizedExecutor<>();

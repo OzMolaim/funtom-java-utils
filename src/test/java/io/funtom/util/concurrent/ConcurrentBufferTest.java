@@ -66,7 +66,7 @@ public class ConcurrentBufferTest {
         final ConcurrentBuffer<Integer> underTest = new ConcurrentBuffer<>();
         final List<Integer> actualReadFromBuffer = new ArrayList<>();
 
-        final int writesPerWriter = 500000;
+        final int writesPerWriter = 5000;
         final int numberOfReaders;
         final int numberOfWriters;
 

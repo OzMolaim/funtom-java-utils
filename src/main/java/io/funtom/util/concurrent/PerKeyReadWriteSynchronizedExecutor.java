@@ -44,7 +44,7 @@ public final class PerKeyReadWriteSynchronizedExecutor<KEY_TYPE> {
         }
     }
 
-    public <R> R readExecute(KEY_TYPE key, Supplier<R> task) throws Exception {
+    public <R> R readExecute(KEY_TYPE key, Supplier<R> task) {
         ConcurrencySegment<KEY_TYPE, ReadWriteSynchronizedExecutor> s = getSegment(key);
         ReadWriteSynchronizedExecutor executor = s.getValue(key);
         try {
