@@ -5,7 +5,7 @@ Requires JDK 8.
 Releases
 ----
 * **0.2 (current)** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.2]
-* **0.1 test **
+* **0.1  ** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.1]
 
 Binaries
 ----
