@@ -4,7 +4,8 @@ Requires JDK 8.
 
 Releases
 ----
-* **0.1 (current)** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.2]
+* **0.2 (current)** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.2]
+* **0.1 ** | [Release Notes][RN v0.1] | [Javadoc][JDOCS v0.1]
 
 Binaries
 ----
@@ -40,5 +41,8 @@ License
 [Apache License, Version 2.0][APLV2]
 
 [RN v0.1]:<https://github.com/funtom-io/funtom-java-utils/releases/tag/v0.1>
+[JDOCS v0.1]:<http://funtom-io.github.io/funtom-java-utils/releases/0.1/javadoc/>
+
 [JDOCS v0.2]:<http://funtom-io.github.io/funtom-java-utils/releases/0.2/javadoc/>
+
 [APLV2]:<http://www.apache.org/licenses/LICENSE-2.0>
