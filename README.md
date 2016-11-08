@@ -44,6 +44,7 @@ License
 [RN v0.1]:<https://github.com/funtom-io/funtom-java-utils/releases/tag/v0.1>
 [JDOCS v0.1]:<http://funtom-io.github.io/funtom-java-utils/releases/0.1/javadoc/>
 
+[RN v0.2]:<https://github.com/funtom-io/funtom-java-utils/releases/tag/v0.2>
 [JDOCS v0.2]:<http://funtom-io.github.io/funtom-java-utils/releases/0.2/javadoc/>
 
 [APLV2]:<http://www.apache.org/licenses/LICENSE-2.0>
