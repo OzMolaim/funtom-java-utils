@@ -4,7 +4,7 @@
 	<groupId>io.funtom</groupId>
 	<artifactId>java-utils</artifactId>
     <packaging>jar</packaging>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.2</version>
 	<name>Funtom Java Utils</name>
 	<description>A Java utils library, contains common utils</description>
 	<url>https://github.com/funtom-io/funtom-java-utils</url>
